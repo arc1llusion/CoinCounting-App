@@ -8,7 +8,7 @@ export class CoinApi {
     public async ListDeposits(): Promise<CoinDto[]> {
         this.http
             .get<CoinDto>(
-                'https://coincounting-api20220301180827-staging.azurewebsites.net/Coins/GetDeposits?userId=1',
+                'https://5388-98-217-233-185.ngrok.io/Coins/GetDeposits?userId=1',
                 { headers: { accept: 'text/plain', 'Access-Control-Allow-Origin': '*' } }
             ).subscribe({
                 next: (value: CoinDto) => {
