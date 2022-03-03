@@ -50,6 +50,5 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'CoinCounting-App'
-          slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E83ADCD7B82F45B3A31E668CF55E9D04 }}
-          package: .
+          package: ./dist/CoinCounting-App
