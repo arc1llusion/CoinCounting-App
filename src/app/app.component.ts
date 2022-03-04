@@ -10,7 +10,8 @@ import { CoinApi } from './api/api';
 export class AppComponent implements OnInit {
   title = 'CoinCounting-App';
   constructor(private api: CoinApi) { }
-  ngOnInit(): void {
-    this.api.ListDeposits();
+  async ngOnInit(): Promise<void> {
+    let coins = await this.api.ListDeposits();
+    console.log(coins[0].Quarters);
   }
 }

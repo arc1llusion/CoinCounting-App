@@ -1,10 +1,10 @@
 export class CoinDto {
-    public pennies: number = 0;
-    public nickels: number = 0;
-    public dimes: number = 0;
-    public quarters: number = 0;
-    public id: number = 0;
-    public userId: number = 0;
-    public user: string = '';
-    public dateDeposited: Date = new Date();
+    public Pennies: number = 0;
+    public Nickels: number = 0;
+    public Dimes: number = 0;
+    public Quarters: number = 0;
+    public Id: number = 0;
+    public UserId: number = 0;
+    public UserName: string = '';
+    public DateDeposited: Date = new Date();
 }
