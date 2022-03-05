@@ -7,7 +7,7 @@ import { ApiUrl } from '../constants/constants';
 
 @Injectable()
 export class SignalRService {
-    public DepositBroadcase = new EventEmitter<CoinDto>();
+    public DepositBroadcast = new EventEmitter<CoinDto>();
     public connection?: ConnectionInfo = undefined;
 
     public CloseConnection() {
@@ -47,7 +47,7 @@ export class SignalRService {
 
         this.connection.Connection.on('Broadcast', (message: CoinDto) => {
             console.log('here', message);
-            this.DepositBroadcase.emit(message);
+            this.DepositBroadcast.emit(message);
         });
 
         this.connection.Connection.start().then((data: any) => {
