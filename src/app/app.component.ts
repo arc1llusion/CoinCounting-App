@@ -1,11 +1,10 @@
 import { Component, NgZone, OnInit } from '@angular/core';
-import { Subject } from 'rxjs';
 import { CoinApi } from './api/api';
 import { CoinDto } from './api/coinDto';
 import { SignalRService } from './signalr/SignalRService';
 import Enumerable from 'linq'
 
-class Data {
+class MultiData {
     public name?: any;
     public series?: DataSeries[];
 }
@@ -25,8 +24,8 @@ export class AppComponent implements OnInit {
     title = 'CoinCounting-App';
 
     public coins: CoinDto[] = [];
-    public totalData: Data[] = [];
-    public coinData: Data[] = [
+    public totalData: MultiData[] = [];
+    public lineChartCoinData: MultiData[] = [
         {
             name: "Pennies",
             series: []
@@ -42,8 +41,28 @@ export class AppComponent implements OnInit {
         {
             name: "Quarters",
             series: []
+        }
+    ];
+
+    public barChartCoinData: DataSeries[] = [
+        {
+            name: "Pennies",
+            value: 0
         },
-    ]
+        {
+            name: "Nickels",
+            value: 0
+        },
+        {
+            name: "Dimes",
+            value: 0
+        },
+        {
+            name: "Quarters",
+            value: 0
+        },
+    ];
+
     public total: number = 0;
 
     constructor(
@@ -54,7 +73,7 @@ export class AppComponent implements OnInit {
     async ngOnInit(): Promise<void> {
         this.signalR.StartConnection();
         this.coins = await this.api.ListDeposits();
-        let category: Data[] = [{ name: "Coins", series: [] }];
+        let category: MultiData[] = [{ name: "Coins", series: [] }];
 
         let series = this.coins.map((coin) => {
             let sum = coin.Pennies * .01 + coin.Nickels * .05 + coin.Dimes * 0.10 + coin.Quarters * 0.25;
@@ -68,10 +87,14 @@ export class AppComponent implements OnInit {
         this.totalData = [...category];
 
         this.CalculateTotal();
-        this.TransformIndividualCoinData(this.coins);
+        this.TransformIndividualCoinDataForLineChart(this.coins);
+        this.TransformBarChartCoinTypes(this.coins);
 
         this.signalR.DepositBroadcast.subscribe((coinDto: CoinDto) => {
+            coinDto.DateDeposited = new Date(coinDto.DateDeposited);
+            this.coins.push(coinDto);
             let sum = coinDto.Pennies * .01 + coinDto.Nickels * .05 + coinDto.Dimes * 0.10 + coinDto.Quarters * 0.25;
+
             this.totalData[0].series!.push({
                 name: new Date(coinDto.DateDeposited),
                 value: parseFloat(sum.toFixed(2))
@@ -81,8 +104,8 @@ export class AppComponent implements OnInit {
                 this.totalData = [...this.totalData];
                 this.CalculateTotal();
 
-                this.coins.push(coinDto);
-                this.TransformIndividualCoinData(this.coins);
+                this.TransformIndividualCoinDataForLineChart(this.coins);
+                this.TransformBarChartCoinTypes(this.coins);
             });
         });
     }
@@ -97,11 +120,11 @@ export class AppComponent implements OnInit {
         this.total = parseFloat(this.total.toFixed(2));
     }
 
-    public TransformIndividualCoinData(coins: CoinDto[]) {
-        let pennies = this.coinData[0];
-        let nickels = this.coinData[1];
-        let dimes = this.coinData[2];
-        let quarters = this.coinData[3];
+    public TransformIndividualCoinDataForLineChart(coins: CoinDto[]) {
+        let pennies = this.lineChartCoinData[0];
+        let nickels = this.lineChartCoinData[1];
+        let dimes = this.lineChartCoinData[2];
+        let quarters = this.lineChartCoinData[3];
 
         pennies.series = coins.map((c) => <DataSeries>{
             name: c.DateDeposited,
@@ -123,6 +146,22 @@ export class AppComponent implements OnInit {
             value: c.Quarters
         });
 
-        this.coinData = [...this.coinData];
+        this.lineChartCoinData = [...this.lineChartCoinData];
+    }
+
+    public TransformBarChartCoinTypes(coins: CoinDto[]) {
+        let pennies = this.barChartCoinData[0];
+        let nickels = this.barChartCoinData[1];
+        let dimes = this.barChartCoinData[2];
+        let quarters = this.barChartCoinData[3];
+
+        let enumerable = Enumerable.from(coins);
+
+        pennies.value = enumerable.sum((x) => { return x.Pennies; });
+        nickels.value = enumerable.sum((x) => { return x.Nickels; });
+        dimes.value = enumerable.sum((x) => { return x.Dimes; });
+        quarters.value = enumerable.sum((x) => { return x.Quarters; });
+
+        this.barChartCoinData = [...this.barChartCoinData];
     }
 }
