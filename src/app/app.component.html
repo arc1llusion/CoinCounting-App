@@ -1,14 +1,14 @@
 <div class="row">
-  <div class="col-3">&nbsp;</div>
-  <div class="col-9">
+  <div class="col-2">&nbsp;</div>
+  <div class="col-6">
     <h2>Coin Amount By Date</h2>
   </div>
-  <div class="col-3">&nbsp;</div>
+  <div class="col-4">&nbsp;</div>
 </div>
 
 <div class="row">
   <div class="col-3">&nbsp;</div>
-  <div class="col-9 graph">
+  <div class="col-6 graph">
     <ngx-charts-line-chart [view]="[700, 300]" [legend]="true" [showXAxisLabel]="true" [showYAxisLabel]="true"
       [xAxis]="true" [yAxis]="true" [results]="data" [xAxisLabel]="'Date'" [yAxisLabel]="'Amount'" [timeline]="true">
     </ngx-charts-line-chart>
