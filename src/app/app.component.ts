@@ -40,7 +40,7 @@ export class AppComponent implements OnInit {
         let series = coins.map((coin) => {
             let sum = coin.Pennies * .01 + coin.Nickels * .05 + coin.Dimes * 0.10 + coin.Quarters * 0.25;
             return {
-                name: coin.DateDeposited,
+                name: new Date(coin.DateDeposited),
                 value: parseFloat(sum.toFixed(2))
             };
         });
@@ -51,7 +51,7 @@ export class AppComponent implements OnInit {
         this.signalR.DepositBroadcast.subscribe((coinDto: CoinDto) => {
             let sum = coinDto.Pennies * .01 + coinDto.Nickels * .05 + coinDto.Dimes * 0.10 + coinDto.Quarters * 0.25;
             this.data[0].series.push({
-                name: coinDto.DateDeposited,
+                name: new Date(coinDto.DateDeposited),
                 value: parseFloat(sum.toFixed(2))
             });
             this.zone.run(() => {
