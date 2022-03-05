@@ -14,7 +14,18 @@ export class CoinApi {
                     { headers: { accept: 'text/plain', 'Access-Control-Allow-Origin': '*' } }
                 ).subscribe({
                     next: (value: CoinDto[]) => {
-                        resolve(value);
+                        var coins = value.map((c) => {
+                            return <CoinDto>{
+                                DateDeposited: new Date(c.DateDeposited),
+                                UserId: parseInt(c.UserId.toString()),
+                                UserName: c.UserName,
+                                Pennies: parseInt(c.Pennies.toString()),
+                                Nickels: parseInt(c.Nickels.toString()),
+                                Dimes: parseInt(c.Dimes.toString()),
+                                Quarters: parseInt(c.Quarters.toString())
+                            }
+                        });
+                        resolve(coins);
                     }, error: (err) => {
                         reject(err);
                     }

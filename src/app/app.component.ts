@@ -3,6 +3,7 @@ import { Subject } from 'rxjs';
 import { CoinApi } from './api/api';
 import { CoinDto } from './api/coinDto';
 import { SignalRService } from './signalr/SignalRService';
+import Enumerable from 'linq'
 
 class Data {
     public name?: any;
@@ -23,7 +24,8 @@ class DataSeries {
 export class AppComponent implements OnInit {
     title = 'CoinCounting-App';
 
-    public data: any = [];
+    public data: Data[] = [];
+    public total: number = 0;
 
     public updateChartSubject: Subject<any> = new Subject();
 
@@ -48,15 +50,27 @@ export class AppComponent implements OnInit {
         category[0].series = series;
         this.data = [...category];
 
+        this.CalculateTotal();
+
         this.signalR.DepositBroadcast.subscribe((coinDto: CoinDto) => {
+            console.log(typeof coinDto.Pennies);
             let sum = coinDto.Pennies * .01 + coinDto.Nickels * .05 + coinDto.Dimes * 0.10 + coinDto.Quarters * 0.25;
-            this.data[0].series.push({
+            this.data[0].series!.push({
                 name: new Date(coinDto.DateDeposited),
                 value: parseFloat(sum.toFixed(2))
             });
             this.zone.run(() => {
                 this.data = [...this.data];
+                this.CalculateTotal();
             });
+        });
+    }
+
+    public CalculateTotal() {
+        let series = this.data[0].series;
+
+        this.total = Enumerable.from(series!).sum((x) => {
+            return x.value;
         });
     }
 }

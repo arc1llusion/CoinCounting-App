@@ -1,19 +1,28 @@
 <div class="row">
-  <div class="col-2">&nbsp;</div>
-  <div class="col-6">
-    <h2>Coin Amount By Date</h2>
-  </div>
-  <div class="col-4">&nbsp;</div>
+    <div class="col-2">&nbsp;</div>
+    <div class="col-6">
+        <h2>Coin Amount By Date</h2>
+    </div>
+    <div class="col-4">&nbsp;</div>
 </div>
 
 <div class="row">
-  <div class="col-3">&nbsp;</div>
-  <div class="col-6 graph">
-    <ngx-charts-line-chart [view]="[700, 300]" [legend]="true" [showXAxisLabel]="true" [showYAxisLabel]="true"
-      [xAxis]="true" [yAxis]="true" [results]="data" [xAxisLabel]="'Date'" [yAxisLabel]="'Amount'" [timeline]="false">
-    </ngx-charts-line-chart>
-  </div>
-  <div class="col-3">&nbsp;</div>
+    <div class="col-3">&nbsp;</div>
+    <div class="col-6 graph">
+        <ngx-charts-line-chart [view]="[700, 300]" [legend]="true" [showXAxisLabel]="true" [showYAxisLabel]="true"
+            [xAxis]="true" [yAxis]="true" [results]="data" [xAxisLabel]="'Date'" [yAxisLabel]="'Amount'"
+            [timeline]="false">
+        </ngx-charts-line-chart>
+    </div>
+    <div class="col-3">&nbsp;</div>
+</div>
+
+<div class="row">
+    <div class="col-2">&nbsp;</div>
+    <div class="col-6">
+        <h2>Total: {{total}}</h2>
+    </div>
+    <div class="col-4">&nbsp;</div>
 </div>
 
 <router-outlet></router-outlet>
