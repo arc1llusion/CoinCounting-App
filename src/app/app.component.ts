@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { CoinApi } from './api/api';
 import { CoinDto } from './api/coinDto';
@@ -23,29 +23,15 @@ class DataSeries {
 export class AppComponent implements OnInit {
     title = 'CoinCounting-App';
 
-    public data: any = [
-        {
-            "name": "Germany",
-            "series": [
-                {
-                    "name": "1990",
-                    "value": 62000000
-                },
-                {
-                    "name": "2010",
-                    "value": 73000000
-                },
-                {
-                    "name": "2011",
-                    "value": 89400000
-                }
-            ]
-        }
-    ];
+    public data: any = [];
 
     public updateChartSubject: Subject<any> = new Subject();
 
-    constructor(private api: CoinApi, private signalR: SignalRService) { }
+    constructor(
+        private api: CoinApi,
+        private signalR: SignalRService,
+        private zone: NgZone) { }
+
     async ngOnInit(): Promise<void> {
         this.signalR.StartConnection();
         let coins = await this.api.ListDeposits();
@@ -60,23 +46,17 @@ export class AppComponent implements OnInit {
         });
 
         category[0].series = series;
-        this.data = category;
-
+        this.data = [...category];
 
         this.signalR.DepositBroadcast.subscribe((coinDto: CoinDto) => {
-            console.log('here');
             let sum = coinDto.Pennies * .01 + coinDto.Nickels * .05 + coinDto.Dimes * 0.10 + coinDto.Quarters * 0.25;
-            console.log(this.data);
-            debugger;
             this.data[0].series.push({
                 name: coinDto.DateDeposited,
                 value: parseFloat(sum.toFixed(2))
             });
-            this.data = [...this.data];
+            this.zone.run(() => {
+                this.data = [...this.data];
+            });
         });
-    }
-
-    private updateChart() {
-        this.updateChartSubject.next(true);
     }
 }
