@@ -6,7 +6,10 @@ import { ApiUrl } from '../constants/constants';
 @Injectable()
 export class CoinApi {
     constructor(private http: HttpClient) { }
+
+    // Gets a list of the deposits from the coin counting API
     public async ListDeposits(): Promise<CoinDto[]> {
+        //Create a promise that resolves once the error either successfully completes or returns an error, and resolve/reject appropriately
         return new Promise((resolve, reject) => {
             this.http
                 .get<CoinDto[]>(

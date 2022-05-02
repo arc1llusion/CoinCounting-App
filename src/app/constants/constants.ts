@@ -1,2 +1,3 @@
-export var ApiUrl = 'https://coincounting-api20220301180827.azurewebsites.net';
+//The API Url to access
+export var ApiUrl = 'https://www.pandastic.net';
 // export var ApiUrl = 'https://localhost:7117'

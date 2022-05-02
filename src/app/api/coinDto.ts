@@ -1,3 +1,4 @@
+//Structure for holding a deposit. i.e. the number of pennies, dimes, etc.
 export class CoinDto {
     public Pennies: number = 0;
     public Nickels: number = 0;

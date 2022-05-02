@@ -7,6 +7,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+//The NgModule is the bootstrap class for angular and includes the components and modules that will be accessed in the app
 @NgModule({
   declarations: [
     AppComponent

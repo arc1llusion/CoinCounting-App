@@ -4,11 +4,13 @@ import { CoinDto } from './api/coinDto';
 import { SignalRService } from './signalr/SignalRService';
 import Enumerable from 'linq'
 
+//Multi Data class for handling multiple series of data
 class MultiData {
     public name?: any;
     public series?: DataSeries[];
 }
 
+//Basically a key value pair
 class DataSeries {
     public name?: any;
     public value?: any;
@@ -21,10 +23,12 @@ class DataSeries {
     providers: [CoinApi, SignalRService]
 })
 export class AppComponent implements OnInit {
-    title = 'CoinCounting-App';
-
+    //A list of coin deposits
     public coins: CoinDto[] = [];
+    //Coin deposits in the form the ngx-charts library wants to deal with
     public totalData: MultiData[] = [];
+
+    //Data for the line chart
     public lineChartCoinData: MultiData[] = [
         {
             name: "Pennies",
@@ -44,6 +48,7 @@ export class AppComponent implements OnInit {
         }
     ];
 
+    //Data for the bar chart
     public barChartCoinData: DataSeries[] = [
         {
             name: "Pennies",
@@ -63,6 +68,7 @@ export class AppComponent implements OnInit {
         },
     ];
 
+    //The total currency amount deposited using this system
     public total: number = 0;
 
     constructor(
@@ -71,25 +77,20 @@ export class AppComponent implements OnInit {
         private zone: NgZone) { }
 
     async ngOnInit(): Promise<void> {
+        //Start the hub connection
         this.signalR.StartConnection();
+
+        //Get the deposit list from the API
         this.coins = await this.api.ListDeposits();
-        let category: MultiData[] = [{ name: "Coins", series: [] }];
 
-        let series = this.coins.map((coin) => {
-            let sum = coin.Pennies * .01 + coin.Nickels * .05 + coin.Dimes * 0.10 + coin.Quarters * 0.25;
-            return {
-                name: new Date(coin.DateDeposited),
-                value: parseFloat(sum.toFixed(2))
-            };
-        });
-
-        category[0].series = series;
-        this.totalData = [...category];
-
+        //Call functions that transform the data into the total, total line chart, individual coin line chart, and bar chart
+        this.TransformCoinDataForTotalCoinsLineChart(this.coins);
         this.CalculateTotal();
         this.TransformIndividualCoinDataForLineChart(this.coins);
         this.TransformBarChartCoinTypes(this.coins);
 
+        //An event handler for the deposit broadcast
+        //When a deposit is made this method is called and recalculates all the data
         this.signalR.DepositBroadcast.subscribe((coinDto: CoinDto) => {
             coinDto.DateDeposited = new Date(coinDto.DateDeposited);
             this.coins.push(coinDto);
@@ -100,16 +101,19 @@ export class AppComponent implements OnInit {
                 value: parseFloat(sum.toFixed(2))
             });
 
+            //A zone is an execution context, not unlike a thread, that persists across asynchronous contexts
             this.zone.run(() => {
+                //Do the calculations for all the data
                 this.totalData = [...this.totalData];
+                this.TransformCoinDataForTotalCoinsLineChart(this.coins);
                 this.CalculateTotal();
-
                 this.TransformIndividualCoinDataForLineChart(this.coins);
                 this.TransformBarChartCoinTypes(this.coins);
             });
         });
     }
 
+    //Calculates the total currency of coins deposited
     public CalculateTotal() {
         let series = this.totalData[0].series;
 
@@ -120,6 +124,23 @@ export class AppComponent implements OnInit {
         this.total = parseFloat(this.total.toFixed(2));
     }
 
+    //Transforms the data into one that shows the total coins per deposit on the line chart
+    public TransformCoinDataForTotalCoinsLineChart(coins: CoinDto[]) {
+        let category: MultiData[] = [{ name: "Coins", series: [] }];
+
+        let series = coins.map((coin) => {
+            let sum = coin.Pennies * .01 + coin.Nickels * .05 + coin.Dimes * 0.10 + coin.Quarters * 0.25;
+            return {
+                name: new Date(coin.DateDeposited),
+                value: parseFloat(sum.toFixed(2))
+            };
+        });
+
+        category[0].series = series;
+        this.totalData = [...category];
+    }
+
+    //Transforms the data into a line chart with 4 series lines, one for each coin type
     public TransformIndividualCoinDataForLineChart(coins: CoinDto[]) {
         let pennies = this.lineChartCoinData[0];
         let nickels = this.lineChartCoinData[1];
@@ -149,6 +170,7 @@ export class AppComponent implements OnInit {
         this.lineChartCoinData = [...this.lineChartCoinData];
     }
 
+    //Transforms the data into the total currency deposited for each coin type
     public TransformBarChartCoinTypes(coins: CoinDto[]) {
         let pennies = this.barChartCoinData[0];
         let nickels = this.barChartCoinData[1];
@@ -157,6 +179,7 @@ export class AppComponent implements OnInit {
 
         let enumerable = Enumerable.from(coins);
 
+        //This could be more efficient if I used a single for loop to sum everything
         pennies.value = enumerable.sum((x) => { return x.Pennies; });
         nickels.value = enumerable.sum((x) => { return x.Nickels; });
         dimes.value = enumerable.sum((x) => { return x.Dimes; });
